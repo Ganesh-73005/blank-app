@@ -76,24 +76,28 @@ if st.session_state['prediction_made']:
     merged_df = pd.merge(output_df, cleaned_df[['location', 'lats', 'longs']], on='location', how='left')
 
     # Convert Average Land Price to Acres
-    merged_df['average_land_price'] *= 43560
+    
 
     # Apply constraints and classify
     def classify_location(row):
         if (row['population'] > 1000000 and
             row['dist_road_qual'] > 800000 and 
-            row['tier_value'] in [1, 2] and 
-            (row['airport_proximity'] > 20 or
-            (row['literacy_rate'] > 7 and row['railways_count'] < 6) or
-            row['airport_proximity'] < 50) and 
-            (row['edi'] > 25000 and row['edi'] < 70000) and
-            (row['average_land_price'] > 2000 and row['average_land_price'] < 5000)):
+            row['tier_value'] in [1, 2] and (row['airport_proximity'] >20 or
+            row['airport_proximity'] < 50) or (row['literacy_rate']>7 and row['railways_count']<6) and (row['edi']>25000 and row['edi']<70000) and
+            (row['average_land_price']>2000 and row['average_land_price']<5000)):
             return 'Cross-Docking Center'
-        else:
+        
+        elif((row['population'] > 500000 and row['population']<3000000) or
+            row['dist_road_qual'] > 800000 or 
+            row['tier_value'] in [2, 3] and (row['airport_proximity'] >30 and
+            row['airport_proximity'] < 80) and (row['literacy_rate']>7 and row['railways_count']>5 and row['railways_count']<11) and (row['edi']>15000 and row['edi']<50000) and
+            (row['average_land_price']>2000 and row['average_land_price']<5000)):
             return 'Warehouse'
+        else:
+            return 'Cross-Docking Center'
 
     merged_df['classification'] = merged_df.apply(classify_location, axis=1)
-
+    merged_df['average_land_price'] *= 43560
     # Calculate the difference in suitability score
     merged_df['suitability_diff'] = abs(merged_df['suitability_score'] - st.session_state['predicted_score'])
 
