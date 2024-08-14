@@ -43,7 +43,7 @@ with st.form(key='predict_form'):
     feature_3 = st.slider('Tier Value', min_value=1, max_value=3, value=3)
     feature_4 = st.slider('Average Income', min_value=10000, max_value=100000, value=31009)
     feature_5 = st.slider('Literacy Rate', min_value=1, max_value=10, value=6)
-    feature_6 = st.slider('Railways count', min_value=1, max_value=10, value=3)
+    feature_6 = st.slider('Railways Count', min_value=1, max_value=10, value=3)
     feature_7 = st.slider('Average Land Price (per sq feet)', min_value=1000, max_value=10000, value=3293)
     feature_8 = st.slider('Airport Proximity', min_value=1, max_value=100, value=30)
 
@@ -77,20 +77,18 @@ if st.session_state['prediction_made']:
 
     # Convert Average Land Price to Acres
     merged_df['average_land_price'] *= 43560
-    # ... (previous code remains the same)
-
-    # ... (loading and merging data remains the same)
 
     # Apply constraints and classify
     def classify_location(row):
         if (row['population'] > 1000000 and
             row['dist_road_qual'] > 800000 and 
-            row['tier_value'] in [1, 2] and (row['airport_proximity'] >20 or
-            row['literacy_rate']>7 and row['railways_count']<6 or
-            row['airport_proximity'] < 50) and (row['edi']>25000 and row['edi']<70000) and
-            (row['average_land_price']>2000 and row['average_land_price']<5000)):
+            row['tier_value'] in [1, 2] and 
+            (row['airport_proximity'] > 20 or
+            (row['literacy_rate'] > 7 and row['railways_count'] < 6) or
+            row['airport_proximity'] < 50) and 
+            (row['edi'] > 25000 and row['edi'] < 70000) and
+            (row['average_land_price'] > 2000 and row['average_land_price'] < 5000)):
             return 'Cross-Docking Center'
-        
         else:
             return 'Warehouse'
 
@@ -177,4 +175,3 @@ if st.session_state['prediction_made']:
     plt.tight_layout()
     st.pyplot(fig)
 
-    # Calculate the difference in suitability score
