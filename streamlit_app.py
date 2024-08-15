@@ -115,7 +115,7 @@ if st.session_state['prediction_made']:
     if not valid_cities.empty:
         st.write("Rendering map...")
         # Create a folium map centered around the mean location
-        m = folium.Map(location=[valid_cities['lats'].mean(), valid_cities['longs'].mean()], zoom_start=5,tiles='StamenTerrain')
+        m = folium.Map(location=[valid_cities['lats'].mean(), valid_cities['longs'].mean()], zoom_start=5,tiles='Stamen Toner')
 
         # Define color scheme for classification
         color_scheme = {
