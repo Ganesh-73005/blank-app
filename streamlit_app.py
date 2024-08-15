@@ -180,7 +180,7 @@ if st.session_state['prediction_made']:
             ax.tick_params(axis='y', labelsize=10)
             ax.legend()
             plt.tight_layout()
-            plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels and adjust alignment
+             # Rotate x-axis labels and adjust alignment
             st.pyplot(fig)  # Display the graph in Streamlit
         else:
             st.write(f"No data available for {param_name}.")
