@@ -134,8 +134,8 @@ if st.session_state['prediction_made']:
                 <p><strong>Tier Value:</strong> {row['tier_value']}</p>
                 <p><strong>Literacy Rate:</strong> {row['literacy_rate']}</p>
                 <p><strong>Railways Count:</strong> {row['railways_count']}</p>
-                <p><strong>Average Land Price (per acre):</strong> {row['average_land_price']:.2f}</p>
-                <p><strong>Airport Proximity:</strong> {row['airport_proximity']}</p>
+                <p><strong>Average Land Price (per acre):</strong> {row['average_land_price']:.2f} Rs</p>
+                <p><strong>Airport Proximity:</strong> {row['airport_proximity']} Km</p>
             </div>
             """
 
@@ -154,27 +154,31 @@ if st.session_state['prediction_made']:
     st.subheader("Parameter Comparisons Across Top Locations")
     fig, axes = plt.subplots(nrows=7, ncols=1, figsize=(20, 40))
     parameters = {
-        'Population': 'population',
-        'Road Quality': 'dist_road_qual',
-        'Tier Value': 'tier_value',
-        'Literacy Rate': 'literacy_rate',
-        'Railways Count': 'railways_count',
-        'Average Land Price (per acre)': 'average_land_price',
-        'Airport Proximity': 'airport_proximity'
-    }
+    'Population': 'population',
+    'Road Quality': 'dist_road_qual',
+    'Tier Value': 'tier_value',
+    'Literacy Rate': 'literacy_rate',
+    'Railways Count': 'railways_count',
+    'Average Land Price (per acre)': 'average_land_price',
+    'Airport Proximity': 'airport_proximity'
+}
 
     for ax, (param_name, param_column) in zip(axes.flat, parameters.items()):
-        for classification in ['Cross-Docking Center', 'Warehouse']:
-            data = valid_cities[valid_cities['classification'] == classification]
-            ax.barh(data['location'], data[param_column], 
-                    label=classification, 
-                    color=color_scheme[classification], 
-                    alpha=0.7)
-        ax.set_title(param_name)
-        ax.set_xlabel(param_name)
-        ax.set_ylabel('Location')
-        ax.tick_params(axis='y', labelsize=10)
-        ax.legend()
+     for classification in ['Cross-Docking Center', 'Warehouse']:
+        data = valid_cities[valid_cities['classification'] == classification]
+        ax.barh(data['location'], data[param_column], 
+                label=classification, 
+                color=color_scheme[classification], 
+                alpha=0.7)
+     ax.set_title(param_name)
+     ax.set_xlabel(param_name)
+     ax.set_ylabel('Location')
+     ax.tick_params(axis='y', labelsize=10)
+     ax.legend()
+
+    # Add space between each graph
+     st.pyplot(fig)
+     st.write("")  # Adds a blank line or space
+    # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead
 
     plt.tight_layout()
-    st.pyplot(fig)
