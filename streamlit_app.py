@@ -8,8 +8,6 @@ from sklearn.ensemble import RandomForestRegressor
 import folium
 from streamlit_folium import st_folium
 import matplotlib.pyplot as plt
-from folium import MacroElement
-from jinja2 import Template
 
 st.set_page_config(
     page_title="Warehouse/Cross-Docking Centers Location Predictor",
@@ -49,6 +47,7 @@ with st.form(key='predict_form'):
     feature_7 = st.slider('Average Land Price (per sq feet)', min_value=1000, max_value=10000, value=3293)
     feature_8 = st.slider('Airport Proximity', min_value=1, max_value=100, value=30)
 
+
     # Submit button
     submit_button = st.form_submit_button(label='Predict Suitability')
 
@@ -76,6 +75,9 @@ if st.session_state['prediction_made']:
 
     # Merge the data based on city names
     merged_df = pd.merge(output_df, cleaned_df[['location', 'lats', 'longs']], on='location', how='left')
+
+    # Convert Average Land Price to Acres
+    
 
     # Apply constraints and classify
     def classify_location(row):
@@ -113,23 +115,19 @@ if st.session_state['prediction_made']:
     if not valid_cities.empty:
         st.write("Rendering map...")
         # Create a folium map centered around the mean location
-        m = folium.Map(
-            location=[valid_cities['lats'].mean(), valid_cities['longs'].mean()],
-            zoom_start=5,
-            tiles='Stamen Terrain'  # Use built-in tile layer
-        )
+        m = folium.Map(location=[valid_cities['lats'].mean(), valid_cities['longs'].mean()], zoom_start=5,titles='CartoDB dark_matter')
 
-        # Define color scheme and icons for classification
-        icon_map = {
-            'Cross-Docking Center': 'https://iconarchive.com/download/i107761/google/noto-emoji-animals-nature/ox.ico',
-            'Warehouse': 'https://iconarchive.com/download/i107769/google/noto-emoji-animals-nature/horse.ico',
-            'Unclassified': 'https://iconarchive.com/download/i107761/google/noto-emoji-animals-nature/ox.ico'
+        # Define color scheme for classification
+        color_scheme = {
+            'Cross-Docking Center': 'red',
+            'Warehouse': 'blue',
+            'Unclassified': 'gray'
         }
 
         # Add city markers to the map with popups containing all relevant information
         for idx, row in valid_cities.iterrows():
             popup_html = f"""
-            <div style="width: 300px; font-family: Arial; font-size: 12px; background-color: #f9f9f9; border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
+            <div style="width: 300px; font-family: Arial; font-size: 12px;">
                 <h4 style="color: #2A9D8F;">{row['location']}</h4>
                 <p><strong>Classification:</strong> {row['classification']}</p>
                 <p><strong>Population:</strong> {row['population']:,}</p>
@@ -145,35 +143,8 @@ if st.session_state['prediction_made']:
             folium.Marker(
                 location=[row['lats'], row['longs']],
                 popup=folium.Popup(popup_html, max_width=300),
-                icon=folium.CustomIcon(icon_map[row['classification']], icon_size=(32, 32))
+                icon=folium.Icon(color=color_scheme[row['classification']], icon='info-sign')
             ).add_to(m)
-
-        # Add a legend to the map
-        class Legend(MacroElement):
-            def __init__(self):
-                super(Legend, self).__init__()
-                self._template = Template("""
-                <div style="
-                    position: fixed;
-                    bottom: 10px;
-                    left: 10px;
-                    width: 150px;
-                    height: auto;
-                    background: white;
-                    border: 2px solid grey;
-                    padding: 5px;
-                    z-index: 9999;
-                    font-size: 14px;
-                ">
-                    <b>Legend</b><br>
-                    <i class="fa fa-map-marker fa-2x" style="color: red;"></i> Cross-Docking Center<br>
-                    <i class="fa fa-map-marker fa-2x" style="color: blue;"></i> Warehouse<br>
-                    <i class="fa fa-map-marker fa-2x" style="color: grey;"></i> Unclassified<br>
-                </div>
-                """)
-
-        legend = Legend()
-        legend.add_to(m)
 
         # Render the map in Streamlit
         st_folium(m, width=1000, height=600)
@@ -182,7 +153,7 @@ if st.session_state['prediction_made']:
 
     # Plot graphs for each parameter across the top locations
     st.subheader("Parameter Comparisons Across Top Locations")
-    fig, axes = plt.subplots(nrows=7, ncols=1, figsize=(15, 35))
+    fig, axes = plt.subplots(nrows=7, ncols=1, figsize=(20, 40))
     parameters = {
         'Population': 'population',
         'Road Quality': 'dist_road_qual',
@@ -208,6 +179,3 @@ if st.session_state['prediction_made']:
 
     plt.tight_layout()
     st.pyplot(fig)
-
-
-
