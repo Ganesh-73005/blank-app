@@ -102,7 +102,7 @@ if st.session_state['prediction_made']:
     top_10_cities = merged_df.nsmallest(10, 'suitability_diff')
 
     # Filter the cities with valid latitude and longitude
-    global valid_cities = top_10_cities.dropna(subset=['lats', 'longs'])
+    valid_cities = top_10_cities.dropna(subset=['lats', 'longs'])
 
     # Display the results
     st.subheader("Top 10 cities closest to the predicted suitability score:")
