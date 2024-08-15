@@ -148,8 +148,8 @@ if st.session_state['prediction_made']:
 
     # Plot graphs for each parameter across the top locations
     # Plot graphs for each parameter across the top locations
+# Plot graphs for each parameter across the top locations
 st.subheader("Parameter Comparisons Across Top Locations")
-fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(20, 40))
 parameters = {
     'Population': 'population',
     'Road Quality': 'dist_road_qual',
@@ -160,9 +160,11 @@ parameters = {
     'Airport Proximity': 'airport_proximity'
 }
 
-# Adjust the graph loop to handle empty data
-for ax, (param_name, param_column) in zip(axes.flat, parameters.items()):
+# Loop through each parameter and create a separate graph for each
+for param_name, param_column in parameters.items():
+    fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed for each graph
     has_data = False
+    
     for classification in ['Cross-Docking Center', 'Warehouse']:
         data = valid_cities[valid_cities['classification'] == classification]
         if not data[param_column].isnull().all():  # Check if there is valid data for the parameter
@@ -178,13 +180,13 @@ for ax, (param_name, param_column) in zip(axes.flat, parameters.items()):
         ax.set_ylabel('Location')
         ax.tick_params(axis='y', labelsize=10)
         ax.legend()
+        st.pyplot(fig)  # Display the graph in Streamlit
     else:
-        ax.axis('off')  # Turn off the axis if there's no data
+        st.write(f"No data available for {param_name}")
 
-    # Add space between each graph
-    st.pyplot(fig)
-    st.write("")  # Adds a blank line or space
-    # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead
+    st.write("")  # Adds a blank line or space between the graphs
+    # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead for more space
+
 
 plt.tight_layout()
 
