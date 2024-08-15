@@ -161,10 +161,10 @@ if st.session_state['prediction_made']:
 
     # Loop through each parameter and create a separate graph for each
     for param_name, param_column in parameters.items():
-        fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed for each graph
+        fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed
         has_data = False
 
-        for classification in ['Cross-Docking Center', 'Warehouse']:
+        for classification in valid_cities['classification'].unique():
             classified_data = valid_cities[valid_cities['classification'] == classification]
             if not classified_data.empty:
                 ax.plot(classified_data['location'], classified_data[param_column], label=classification)
@@ -175,9 +175,7 @@ if st.session_state['prediction_made']:
             ax.set_xlabel('Location')
             ax.set_ylabel(param_name)
             ax.legend()
+            plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels and adjust alignment
             st.pyplot(fig)
         else:
             st.write(f"No data available for {param_name}.")
-
-
-
