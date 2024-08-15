@@ -1,8 +1,7 @@
-theme = {
-    "base": "dark",
-    "primaryColor": "#00BFFF",  # DeepSkyBlue
-    "backgroundColor": "#1C1C1C",  # DarkGray
-    "secondaryBackgroundColor": "#333333",  # Slightly lighter dark gray
-    "textColor": "#FAFAFA",  # Almost white
-    "font": "monospace",  # Gives a techy feel
-}
+[theme]
+base = "dark"
+primaryColor = "#00BFFF"  # DeepSkyBlue
+backgroundColor = "#1C1C1C"  # DarkGray
+secondaryBackgroundColor = "#333333"  # Slightly lighter dark gray
+textColor = "#FAFAFA"  # Almost white
+font = "monospace"  # Gives a techy feel
