@@ -159,23 +159,28 @@ if st.session_state['prediction_made']:
         'Airport Proximity': 'airport_proximity'
     }
 
-    # Loop through each parameter and create a separate graph for each
+    # Loop through each parameter and create a horizontal bar chart for each
     for param_name, param_column in parameters.items():
-        fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed
+        fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed for each graph
         has_data = False
 
         for classification in valid_cities['classification'].unique():
-            classified_data = valid_cities[valid_cities['classification'] == classification]
-            if not classified_data.empty:
-                ax.plot(classified_data['location'], classified_data[param_column], label=classification)
+            data = valid_cities[valid_cities['classification'] == classification]
+            if not data.empty:
+                ax.barh(data['location'], data[param_column], 
+                        label=classification, 
+                        color=color_scheme[classification], 
+                        alpha=0.7)
                 has_data = True
 
         if has_data:
             ax.set_title(f'{param_name} Across Top Locations')
-            ax.set_xlabel('Location')
-            ax.set_ylabel(param_name)
+            ax.set_xlabel(param_name)
+            ax.set_ylabel('Location')
+            ax.tick_params(axis='y', labelsize=10)
             ax.legend()
+            plt.tight_layout()
             plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels and adjust alignment
-            st.pyplot(fig)
+            st.pyplot(fig)  # Display the graph in Streamlit
         else:
             st.write(f"No data available for {param_name}.")
