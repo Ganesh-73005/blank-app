@@ -47,7 +47,6 @@ with st.form(key='predict_form'):
     feature_7 = st.slider('Average Land Price (per sq feet)', min_value=1000, max_value=10000, value=3293)
     feature_8 = st.slider('Airport Proximity', min_value=1, max_value=100, value=30)
 
-
     # Submit button
     submit_button = st.form_submit_button(label='Predict Suitability')
 
@@ -76,9 +75,6 @@ if st.session_state['prediction_made']:
     # Merge the data based on city names
     merged_df = pd.merge(output_df, cleaned_df[['location', 'lats', 'longs']], on='location', how='left')
 
-    # Convert Average Land Price to Acres
-    
-
     # Apply constraints and classify
     def classify_location(row):
         if (row['population'] > 1000000 and
@@ -98,7 +94,7 @@ if st.session_state['prediction_made']:
             return 'Cross-Docking Center'
 
     merged_df['classification'] = merged_df.apply(classify_location, axis=1)
-    merged_df['average_land_price'] *= 43560
+    merged_df['average_land_price'] *= 43560  # Convert Average Land Price to Acres
     # Calculate the difference in suitability score
     merged_df['suitability_diff'] = abs(merged_df['suitability_score'] - st.session_state['predicted_score'])
 
@@ -154,31 +150,32 @@ if st.session_state['prediction_made']:
     st.subheader("Parameter Comparisons Across Top Locations")
     fig, axes = plt.subplots(nrows=7, ncols=1, figsize=(20, 40))
     parameters = {
-    'Population': 'population',
-    'Road Quality': 'dist_road_qual',
-    'Tier Value': 'tier_value',
-    'Literacy Rate': 'literacy_rate',
-    'Railways Count': 'railways_count',
-    'Average Land Price (per acre)': 'average_land_price',
-    'Airport Proximity': 'airport_proximity'
-}
+        'Population': 'population',
+        'Road Quality': 'dist_road_qual',
+        'Tier Value': 'tier_value',
+        'Literacy Rate': 'literacy_rate',
+        'Railways Count': 'railways_count',
+        'Average Land Price (per acre)': 'average_land_price',
+        'Airport Proximity': 'airport_proximity'
+    }
 
     for ax, (param_name, param_column) in zip(axes.flat, parameters.items()):
-     for classification in ['Cross-Docking Center', 'Warehouse']:
-        data = valid_cities[valid_cities['classification'] == classification]
-        ax.barh(data['location'], data[param_column], 
-                label=classification, 
-                color=color_scheme[classification], 
-                alpha=0.7)
-     ax.set_title(param_name)
-     ax.set_xlabel(param_name)
-     ax.set_ylabel('Location')
-     ax.tick_params(axis='y', labelsize=10)
-     ax.legend()
+        for classification in ['Cross-Docking Center', 'Warehouse']:
+            data = valid_cities[valid_cities['classification'] == classification]
+            ax.barh(data['location'], data[param_column], 
+                    label=classification, 
+                    color=color_scheme[classification], 
+                    alpha=0.7)
+        ax.set_title(param_name)
+        ax.set_xlabel(param_name)
+        ax.set_ylabel('Location')
+        ax.tick_params(axis='y', labelsize=10)
+        ax.legend()
 
-    # Add space between each graph
-     st.pyplot(fig)
-     st.write("")  # Adds a blank line or space
-    # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead
+        # Add space between each graph
+        st.pyplot(fig)
+        st.write("")  # Adds a blank line or space
+        # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead
 
     plt.tight_layout()
+
