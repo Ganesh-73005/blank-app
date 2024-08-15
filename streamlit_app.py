@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pickle
 import os
@@ -117,7 +116,7 @@ if st.session_state['prediction_made']:
         m = folium.Map(
             location=[valid_cities['lats'].mean(), valid_cities['longs'].mean()],
             zoom_start=5,
-            tiles='Stamen Terrain'  # Change this to another style if desired
+            tiles='Stamen Terrain'  # Use built-in tile layer
         )
 
         # Define color scheme and icons for classification
@@ -209,5 +208,6 @@ if st.session_state['prediction_made']:
 
     plt.tight_layout()
     st.pyplot(fig)
+
 
 
