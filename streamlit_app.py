@@ -16,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 st.markdown("<h1 style='text-align: center;'>SpotPerfect 🌟</h1>", unsafe_allow_html=True)
-valid_cities =""
+
 # Get the absolute path to the current directory
 current_dir = os.getcwd()
 
@@ -149,8 +149,8 @@ if st.session_state['prediction_made']:
     # Plot graphs for each parameter across the top locations
     # Plot graphs for each parameter across the top locations
 # Plot graphs for each parameter across the top locations
-st.subheader("Parameter Comparisons Across Top Locations")
-parameters = {
+    st.subheader("Parameter Comparisons Across Top Locations")
+    parameters = {
     'Population': 'population',
     'Road Quality': 'dist_road_qual',
     'Tier Value': 'tier_value',
@@ -161,30 +161,30 @@ parameters = {
 }
 
 # Loop through each parameter and create a separate graph for each
-for param_name, param_column in parameters.items():
-    fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed for each graph
-    has_data = False
+    for param_name, param_column in parameters.items():
+          fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed for each graph
+          has_data = False
     
-    for classification in ['Cross-Docking Center', 'Warehouse']:
-        data = valid_cities[valid_cities['classification'] == classification]
-        if not data[param_column].isnull().all():  # Check if there is valid data for the parameter
+      for classification in ['Cross-Docking Center', 'Warehouse']:
+         data = valid_cities[valid_cities['classification'] == classification]
+         if not data[param_column].isnull().all():  # Check if there is valid data for the parameter
             ax.barh(data['location'], data[param_column], 
                     label=classification, 
                     color=color_scheme[classification], 
                     alpha=0.7)
             has_data = True
     
-    if has_data:
+      if has_data:
         ax.set_title(param_name)
         ax.set_xlabel(param_name)
         ax.set_ylabel('Location')
         ax.tick_params(axis='y', labelsize=10)
         ax.legend()
         st.pyplot(fig)  # Display the graph in Streamlit
-    else:
+      else:
         st.write(f"No data available for {param_name}")
 
-    st.write("")  # Adds a blank line or space between the graphs
+      st.write("")  # Adds a blank line or space between the graphs
     # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead for more space
 
 
