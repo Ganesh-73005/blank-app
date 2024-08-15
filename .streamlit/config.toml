@@ -1,7 +1,7 @@
 [theme]
-base = "light"
-primaryColor = "#1E90FF"  # DodgerBlue
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F0F0"
-textColor = "#000000"
-font = "sans serif"
+base: "dark"
+primaryColor: "#00BFFF"
+backgroundColor: "#1C1C1C"
+secondaryBackgroundColor: "#333333"
+textColor: "#FAFAFA"
+font: "monospace" 
