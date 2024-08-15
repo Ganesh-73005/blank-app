@@ -79,16 +79,16 @@ if st.session_state['prediction_made']:
     def classify_location(row):
         if (row['population'] > 1000000 and
             row['dist_road_qual'] > 800000 and 
-            row['tier_value'] in [1, 2] and (row['airport_proximity'] >20 or
-            row['airport_proximity'] < 50) or (row['literacy_rate']>7 and row['railways_count']<6) and (row['edi']>25000 and row['edi']<70000) and
-            (row['average_land_price']>2000 and row['average_land_price']<5000)):
+            row['tier_value'] in [1, 2] and (row['airport_proximity'] > 20 or
+            row['airport_proximity'] < 50) or (row['literacy_rate'] > 7 and row['railways_count'] < 6) and (row['edi'] > 25000 and row['edi'] < 70000) and
+            (row['average_land_price'] > 2000 and row['average_land_price'] < 5000)):
             return 'Cross-Docking Center'
         
-        elif((row['population'] > 500000 and row['population']<3000000) or
+        elif((row['population'] > 500000 and row['population'] < 3000000) or
             row['dist_road_qual'] > 800000 or 
-            row['tier_value'] in [2, 3] and (row['airport_proximity'] >30 and
-            row['airport_proximity'] < 80) and (row['literacy_rate']>7 and row['railways_count']>5 and row['railways_count']<11) and (row['edi']>15000 and row['edi']<50000) and
-            (row['average_land_price']>2000 and row['average_land_price']<5000)):
+            row['tier_value'] in [2, 3] and (row['airport_proximity'] > 30 and
+            row['airport_proximity'] < 80) and (row['literacy_rate'] > 7 and row['railways_count'] > 5 and row['railways_count'] < 11) and (row['edi'] > 15000 and row['edi'] < 50000) and
+            (row['average_land_price'] > 2000 and row['average_land_price'] < 5000)):
             return 'Warehouse'
         else:
             return 'Cross-Docking Center'
@@ -111,7 +111,8 @@ if st.session_state['prediction_made']:
     if not valid_cities.empty:
         st.write("Rendering map...")
         # Create a folium map centered around the mean location
-        m = folium.Map(location=[valid_cities['lats'].mean(), valid_cities['longs'].mean()], zoom_start=5,tiles='CartoDB positron')
+        m = folium.Map(location=[valid_cities['lats'].mean(), valid_cities['longs'].mean()], zoom_start=5, tiles='CartoDB positron')
+
         # Define color scheme for classification
         color_scheme = {
             'Cross-Docking Center': 'red',
@@ -147,47 +148,36 @@ if st.session_state['prediction_made']:
         st.write("No valid locations found for mapping.")
 
     # Plot graphs for each parameter across the top locations
-    # Plot graphs for each parameter across the top locations
-# Plot graphs for each parameter across the top locations
     st.subheader("Parameter Comparisons Across Top Locations")
     parameters = {
-    'Population': 'population',
-    'Road Quality': 'dist_road_qual',
-    'Tier Value': 'tier_value',
-    'Literacy Rate': 'literacy_rate',
-    'Railways Count': 'railways_count',
-    'Average Land Price (per acre)': 'average_land_price',
-    'Airport Proximity': 'airport_proximity'
-}
+        'Population': 'population',
+        'Road Quality': 'dist_road_qual',
+        'Tier Value': 'tier_value',
+        'Literacy Rate': 'literacy_rate',
+        'Railways Count': 'railways_count',
+        'Average Land Price (per acre)': 'average_land_price',
+        'Airport Proximity': 'airport_proximity'
+    }
 
-# Loop through each parameter and create a separate graph for each
+    # Loop through each parameter and create a separate graph for each
     for param_name, param_column in parameters.items():
-          fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed for each graph
-          has_data = False
-    
-      for classification in ['Cross-Docking Center', 'Warehouse']:
-         data = valid_cities[valid_cities['classification'] == classification]
-         if not data[param_column].isnull().all():  # Check if there is valid data for the parameter
-            ax.barh(data['location'], data[param_column], 
-                    label=classification, 
-                    color=color_scheme[classification], 
-                    alpha=0.7)
-            has_data = True
-    
-      if has_data:
-        ax.set_title(param_name)
-        ax.set_xlabel(param_name)
-        ax.set_ylabel('Location')
-        ax.tick_params(axis='y', labelsize=10)
-        ax.legend()
-        st.pyplot(fig)  # Display the graph in Streamlit
-      else:
-        st.write(f"No data available for {param_name}")
+        fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figsize as needed for each graph
+        has_data = False
 
-      st.write("")  # Adds a blank line or space between the graphs
-    # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead for more space
+        for classification in ['Cross-Docking Center', 'Warehouse']:
+            classified_data = valid_cities[valid_cities['classification'] == classification]
+            if not classified_data.empty:
+                ax.plot(classified_data['location'], classified_data[param_column], label=classification)
+                has_data = True
 
+        if has_data:
+            ax.set_title(f'{param_name} Across Top Locations')
+            ax.set_xlabel('Location')
+            ax.set_ylabel(param_name)
+            ax.legend()
+            st.pyplot(fig)
+        else:
+            st.write(f"No data available for {param_name}.")
 
-plt.tight_layout()
 
 
