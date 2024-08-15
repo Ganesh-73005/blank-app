@@ -147,35 +147,45 @@ if st.session_state['prediction_made']:
         st.write("No valid locations found for mapping.")
 
     # Plot graphs for each parameter across the top locations
-    st.subheader("Parameter Comparisons Across Top Locations")
-    fig, axes = plt.subplots(nrows=7, ncols=1, figsize=(20, 40))
-    parameters = {
-        'Population': 'population',
-        'Road Quality': 'dist_road_qual',
-        'Tier Value': 'tier_value',
-        'Literacy Rate': 'literacy_rate',
-        'Railways Count': 'railways_count',
-        'Average Land Price (per acre)': 'average_land_price',
-        'Airport Proximity': 'airport_proximity'
-    }
+    # Plot graphs for each parameter across the top locations
+st.subheader("Parameter Comparisons Across Top Locations")
+fig, axes = plt.subplots(nrows=7, ncols=1, figsize=(20, 40))
+parameters = {
+    'Population': 'population',
+    'Road Quality': 'dist_road_qual',
+    'Tier Value': 'tier_value',
+    'Literacy Rate': 'literacy_rate',
+    'Railways Count': 'railways_count',
+    'Average Land Price (per acre)': 'average_land_price',
+    'Airport Proximity': 'airport_proximity'
+}
 
-    for ax, (param_name, param_column) in zip(axes.flat, parameters.items()):
-        for classification in ['Cross-Docking Center', 'Warehouse']:
-            data = valid_cities[valid_cities['classification'] == classification]
+# Adjust the graph loop to handle empty data
+for ax, (param_name, param_column) in zip(axes.flat, parameters.items()):
+    has_data = False
+    for classification in ['Cross-Docking Center', 'Warehouse']:
+        data = valid_cities[valid_cities['classification'] == classification]
+        if not data[param_column].isnull().all():  # Check if there is valid data for the parameter
             ax.barh(data['location'], data[param_column], 
                     label=classification, 
                     color=color_scheme[classification], 
                     alpha=0.7)
+            has_data = True
+    
+    if has_data:
         ax.set_title(param_name)
         ax.set_xlabel(param_name)
         ax.set_ylabel('Location')
         ax.tick_params(axis='y', labelsize=10)
         ax.legend()
+    else:
+        ax.axis('off')  # Turn off the axis if there's no data
 
-        # Add space between each graph
-        st.pyplot(fig)
-        st.write("")  # Adds a blank line or space
-        # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead
+    # Add space between each graph
+    st.pyplot(fig)
+    st.write("")  # Adds a blank line or space
+    # st.markdown("<br>", unsafe_allow_html=True)  # You can use this instead
 
-    plt.tight_layout()
+plt.tight_layout()
+
 
