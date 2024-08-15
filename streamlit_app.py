@@ -153,7 +153,7 @@ if st.session_state['prediction_made']:
 
     # Plot graphs for each parameter across the top locations
     st.subheader("Parameter Comparisons Across Top Locations")
-    fig, axes = plt.subplots(nrows=7, ncols=1, figsize=(30, 25))
+    fig, axes = plt.subplots(nrows=7, ncols=1, figsize=(30, 40))
     parameters = {
         'Population': 'population',
         'Road Quality': 'dist_road_qual',
