@@ -16,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 st.markdown("<h1 style='text-align: center;'>SpotPerfect 🌟</h1>", unsafe_allow_html=True)
-
+valid_cities =""
 # Get the absolute path to the current directory
 current_dir = os.getcwd()
 
@@ -102,7 +102,7 @@ if st.session_state['prediction_made']:
     top_10_cities = merged_df.nsmallest(10, 'suitability_diff')
 
     # Filter the cities with valid latitude and longitude
-    valid_cities = top_10_cities.dropna(subset=['lats', 'longs'])
+    global valid_cities = top_10_cities.dropna(subset=['lats', 'longs'])
 
     # Display the results
     st.subheader("Top 10 cities closest to the predicted suitability score:")
