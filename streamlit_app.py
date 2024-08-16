@@ -10,7 +10,7 @@ from streamlit_folium import st_folium
 import matplotlib.pyplot as plt
 
 st.set_page_config(
-    page_title="Warehouse/Cross-Docking Centers Location Predictor",
+    page_title="SpotPerfect - Peaky blinders ",
     page_icon="🌟",
     layout="wide",
     initial_sidebar_state="expanded"
