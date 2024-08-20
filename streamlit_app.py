@@ -155,6 +155,7 @@ if st.session_state['prediction_made']:
         'Tier Value': 'tier_value',
         'Literacy Rate': 'literacy_rate',
         'Railways Count': 'railways_count',
+        'Average Income': 'edi',
         'Average Land Price (per acre)': 'average_land_price',
         'Airport Proximity': 'airport_proximity'
     }
