@@ -44,7 +44,7 @@ with st.form(key='predict_form'):
     feature_4 = st.slider('Average Income', min_value=10000, max_value=100000, value=31009)
     feature_5 = st.number_input('Literacy Rate', min_value=1, max_value=10, value=6, step=1)
     feature_6 = st.number_input('Railways Count', min_value=1, max_value=10, value=3, step=1)
-    feature_7 = st.slider('Average Land Price (per sq feet)', min_value=1000, max_value=10000, value=3293)
+    feature_7 = st.slider('Average Land Price (per sq feet)', min_value=1, max_value=10000, value=3293)
     feature_8 = st.slider('Airport Proximity', min_value=1, max_value=100, value=30)
 
     # Submit button
