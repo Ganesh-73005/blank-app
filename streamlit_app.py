@@ -94,7 +94,7 @@ if st.session_state['prediction_made']:
             return 'Cross-Docking Center'
 
     merged_df['classification'] = merged_df.apply(classify_location, axis=1)
-    merged_df['average_land_price'] *= 43560  # Convert Average Land Price to Acres
+      # Convert Average Land Price to Acres
     # Calculate the difference in suitability score
     merged_df['suitability_diff'] = abs(merged_df['suitability_score'] - st.session_state['predicted_score'])
 
@@ -131,7 +131,7 @@ if st.session_state['prediction_made']:
                 <p><strong>Tier Value:</strong> {row['tier_value']}</p>
                 <p><strong>Literacy Rate:</strong> {row['literacy_rate']}</p>
                 <p><strong>Railways Count:</strong> {row['railways_count']}</p>
-                <p><strong>Average Land Price (per acre):</strong> {row['average_land_price']:.2f} Rs</p>
+                <p><strong>Average Land Price (per sqft) :</strong> {row['average_land_price']:.2f} Rs</p>
                 <p><strong>Airport Proximity:</strong> {row['airport_proximity']} Km</p>
             </div>
             """
