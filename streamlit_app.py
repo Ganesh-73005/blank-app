@@ -15,7 +15,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-st.markdown("<h1 style='text-align: center;'>SpotPerfect 🌟</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>SpotPerfect 📍</h1>", unsafe_allow_html=True)
 
 # Get the absolute path to the current directory
 current_dir = os.getcwd()
