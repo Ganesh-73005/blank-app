@@ -1,183 +1,182 @@
-# **Order Processing System with Apache Camel and Drools**  
-
-## **Overview**  
-This project demonstrates an **order processing system** that integrates:  
-- **Apache Camel** for routing and mediation  
-- **Drools (KIE)** for business rule execution  
-- **Spring Boot** for REST API and dependency injection  
-
-The system processes orders by:  
-1. Validating customer details using Drools rules  
-2. Applying discounts and business logic based on order details  
-3. Managing workflows using Camel routes  
+# **Order Processing System with Apache Camel & Drools**  
+*A Hybrid Integration Platform with Rule-Based Processing*
 
 ---
 
-## **Key Features**  
-✅ **REST API** for order submission and processing  
-✅ **File-based processing** for batch orders  
-✅ **Drools rules engine** for dynamic business logic  
-✅ **Error handling** with structured JSON responses  
-✅ **JSON (de)serialization** using Jackson  
+## **📌 Overview**  
+This system combines:  
+✅ **Apache Camel** (for intelligent routing)  
+✅ **Drools** (for dynamic business rules)  
+✅ **Spring Boot** (for REST APIs)  
+
+Key workflows:  
+1. **REST API processing** with JSON validation  
+2. **File-based batch processing**  
+3. **Rule-driven order/customer validation**  
 
 ---
 
-## **System Architecture**  
+## **🚀 Key Advantages of Camel over Traditional MVC**  
 
-### **1. Components**  
-| Component | Description |  
-|-----------|------------|  
-| **OrderController** | REST endpoint for order submission |  
-| **OrderProcessingRoute** | Camel route for order processing |  
-| **OrderProcessingService** | Service layer integrating Drools |  
-| **DroolsConfig** | Configures KieContainer and sessions |  
-| **JacksonConfig** | Custom JSON serialization settings |  
+| **Feature**               | **Camel Implementation**                          | **Traditional MVC**                     |  
+|---------------------------|--------------------------------------------------|----------------------------------------|  
+| **Routing Logic**          | Declarative (Java/XML DSL)                       | Imperative (Controller methods)        |  
+| **Protocol Support**       | 300+ components (HTTP, FTP, JMS, Kafka, etc.)    | Limited to HTTP                        |  
+| **Error Handling**         | Global/route-specific error handlers             | Manual `@ExceptionHandler`             |  
+| **Data Transformation**    | Built-in (JSON/XML/CSV converters)               | Manual `ObjectMapper` usage            |  
+| **Monitoring**            | JMX/Camel Console                                | Requires Spring Actuator               |  
+| **File Processing**       | Native file watchers + filters                   | Manual file polling                    |  
+| **Transaction Support**   | End-to-end transactional routes                 | Manual `@Transactional`               |  
 
-### **2. Workflow**  
-```mermaid
-flowchart TD
-    A[HTTP POST /api/orders/process] --> B[Camel REST DSL]
-    B --> C[direct:processOrder]
-    C --> D[Unmarshal JSON to OrderRequest]
-    D --> E[Validate Customer (Drools)]
-    E --> F[Process Order (Drools)]
-    F --> G[Build OrderResponse]
-    G --> H[Marshal to JSON]
-    H --> I[Return HTTP Response]
+---
 
-    J[File Input (input/orders)] --> K[Unmarshal JSON]
-    K --> L[Same as REST flow]
-    L --> M[Save to output/processed-orders]
+## **🔗 All Routes (REST + Camel)**  
+
+### **1. REST API Routes (Spring Boot)**  
+| Endpoint                     | Method | Description                          |  
+|------------------------------|--------|--------------------------------------|  
+| `/api/orders/process`        | POST   | Submit order for processing          |  
+| `/api/orders/sample`         | GET    | Get sample order payload             |  
+| `/api/test/health`           | GET    | System health check                  |  
+| `/api/test/simple`           | GET    | Test order with direct service call  |  
+| `/api/test/full-order`       | POST   | Test endpoint for full order flow    |  
+
+---
+
+### **2. Camel Routes (Integration Flows)**  
+
+#### **🔹 OrderProcessingRoute** *(Primary Route)*  
+```java
+from("direct:processOrder")
+  .unmarshal().json(OrderRequest.class)           // JSON → Java
+  .bean(OrderProcessingService, "validateCustomer") // Drools Session
+  .bean(OrderProcessingService, "processOrder")    // Drools Session
+  .marshal().json()                                // Java → JSON
+  .to("log:processed?level=INFO")
+```
+
+#### **🔹 File Processing Route**  
+```java
+from("file:input/orders?noop=true")              // Auto-file-watching
+  .unmarshal().json(OrderRequest.class)           // File → Java
+  .to("direct:processOrder")                     // Reuse main flow
+  .marshal().json()
+  .to("file:output/processed-orders")             // Save processed
+```
+
+#### **🔹 SimpleOrderRoute** *(Testing/Debugging)*  
+```java
+rest("/api/simple")
+  .get("/test").to("direct:simpleTest")           // Quick health check
+  .post("/order").to("direct:processSimpleOrder") // Minimal order flow
+```
+
+#### **🔹 Error Handling Route** *(Global)*  
+```java
+onException(Exception.class)
+  .handled(true)
+  .log("Error: ${exception.message}")
+  .setBody().constant("{\"error\": \"Processing failed\"}")
+  .setHeader(Exchange.CONTENT_TYPE, "application/json");
 ```
 
 ---
 
-## **API Endpoints**  
-
-### **1. Submit an Order**  
-- **Method**: `POST /api/orders/process`  
-- **Request Body**:  
-  ```json
-  {
-    "order": {
-      "orderId": "ORD001",
-      "customerId": "CUST001",
-      "items": [
-        {
-          "productId": "PROD001",
-          "name": "Laptop",
-          "quantity": 1,
-          "price": 999.99,
-          "category": "Electronics"
-        }
-      ]
-    },
-    "customer": {
-      "customerId": "CUST001",
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "membership": "PREMIUM",
-      "loyaltyPoints": 1500
-    }
-  }
-  ```
-- **Response**:  
-  ```json
-  {
-    "status": "SUCCESS",
-    "message": "Order processed successfully",
-    "order": {
-      "orderId": "ORD001",
-      "discountAmount": 100.00,
-      "status": "APPROVED"
-    },
-    "customer": {
-      "customerId": "CUST001",
-      "validated": true
-    }
-  }
-  ```
-
-### **2. Get Sample Order (Testing)**  
-- **Method**: `GET /api/orders/sample`  
-- **Response**: Predefined sample order for testing.  
-
-### **3. Health Check**  
-- **Method**: `GET /api/test/health`  
-- **Response**:  
-  ```json
-  { "status": "UP", "message": "Application is running" }
-  ```
-
----
-
-## **Drools Rule Sessions**  
-Configured in `kmodule.xml`:  
+## **⚙️ Drools Integration**  
+**Rule Sessions Configured in `kmodule.xml`:**  
 ```xml
-<kbase name="orderProcessingKBase" packages="rules">
-    <ksession name="orderProcessingSession" type="stateful" default="true"/>
-    <ksession name="customerValidationSession" type="stateful"/>
-</kbase>
+<ksession name="orderProcessingSession" type="stateful"/> <!-- Order rules -->  
+<ksession name="customerValidationSession" type="stateful"/> <!-- Validation -->  
 ```
 
-### **Key Rules (in `/resources/rules/`)**  
-1. **OrderProcessingRules.drl** – Applies discounts, sets priority.  
-2. **DiscountRules.drl** – Calculates loyalty-based discounts.  
-3. **CustomerValidationRules.drl** – Validates customer eligibility.  
+**Key Rule Files:**  
+- `OrderProcessingRules.drl` → Discounts/priorities  
+- `DiscountRules.drl` → Loyalty-based logic  
+- `CustomerValidationRules.drl` → Tier validation  
 
 ---
 
-## **File-Based Processing**  
-- **Input**: Files placed in `input/orders/` (JSON format).  
-- **Output**: Processed orders saved in `output/processed-orders/`.  
+## **📊 Workflow Diagram**  
+```mermaid
+---
+config:
+  layout: fixed
+  look: handDrawn
+  theme: mc
+---
+flowchart TD
+ subgraph subGraph0["Drools Engine"]
+        T["kmodule.xml"]
+        G{"Start KieSession"}
+        U["KieBase: orderProcessingKBase"]
+        V["KieSession: orderProcessingSession"]
+        W["KieSession: customerValidationSession"]
+  end
+    A(["HTTP POST /api/orders/process"]) --> B["Camel REST DSL"]
+    B --> C["direct:processOrder"]
+    C --> D["Unmarshal JSON\nOrderRequest"]
+    D --> E["Initialize Order\n(set defaults)"]
+    E --> F["Insert Facts:\nOrder + Customer"]
+    F --> G
+    G -- orderProcessingSession --> H["Fire Rules:\nOrderProcessingRules.drl"]
+    H --> I["Apply Discounts\nDiscountRules.drl"]
+    I --> J["Set Status/Priority"]
+    G -- customerValidationSession --> K["Fire Rules:\nCustomerValidationRules.drl"]
+    K --> L["Validate Tier/Loyalty"]
+    J --> M["Build OrderResponse"]
+    L --> M
+    M --> N["Marshal to JSON"]
+    N --> O(["HTTP 200 Response"])
+    G -- KieContainer --> T
+    T --> U
+    U --> V & W
+    C -- Exception --> X["Global Error Handler"]
+    X --> Y["Log Error"]
+    Y --> Z@{ label: "Return {'error': message}" }
+    Z@{ shape: rect}
+    classDef camel stroke:#2ecc71,stroke-width:3px
+    classDef file stroke:#3498db,stroke-width:3px
+    classDef rules stroke:#e67e22,stroke-width:2px
+    classDef kiesession stroke:#9b59b6,stroke-width:3px
+    style V stroke:#9b59b6,stroke-width:3px
+    style W stroke:#9b59b6,stroke-width:3px
+    style A stroke:#2ecc71,stroke-width:3px
+    style H stroke:#e67e22,stroke-width:2px
+    style I stroke:#e67e22,stroke-width:2px
+    style K stroke:#e67e22,stroke-width:2px
 
-Example workflow:  
-1. Drop `order.json` in `input/orders/`.  
-2. Camel picks it up, processes via Drools.  
-3. Result saved in `output/processed-orders/`.  
+```
 
 ---
 
-## **Error Handling**  
-- **REST API Errors**: Returns structured JSON:  
-  ```json
-  { "error": "Processing failed", "message": "Invalid customer data" }
-  ```
-- **Drools Errors**: Logged, propagated as exceptions.  
+## **🛠️ How to Run**  
+```bash
+mvn spring-boot:run
+```
+**Test with:**  
+```bash
+curl -X POST http://localhost:8080/api/orders/process -H "Content-Type: application/json" -d @sample-order.json
+```
 
 ---
 
-## **How to Run**  
-1. **Build & Run**:  
-   ```sh
-   mvn spring-boot:run
-   ```
-2. **Test APIs**:  
-   - Use `POST /api/orders/process` for order submission.  
-   - Use `GET /api/orders/sample` for a test payload.  
-3. **File Processing**:  
-   - Place JSON files in `input/orders/` and check `output/processed-orders/`.  
+## **🌟 Why This Architecture Wins**  
+1. **Agility**: Change business rules (Drools) without redeploying code.  
+2. **Extensibility**: Add new routes (Kafka/SFTP) without disrupting existing flows.  
+3. **Observability**: Built-in Camel metrics + logging.  
+4. **Consistency**: Reuse the same rules across REST/files/queues.  
 
 ---
 
-## **Dependencies**  
-- **Apache Camel** (`camel-spring-boot-starter`)  
-- **Drools** (`kie-spring`)  
-- **Jackson** (`jackson-datatype-jsr310`)  
+## **📈 Future Improvements**  
+- Add **Kafka integration** for event streaming  
+- Implement **Swagger UI** for API docs  
+- Extend rules with **fraud detection**  
 
 ---
 
-## **Future Improvements**  
-🔹 **Add Kafka integration** for event-driven processing.  
-🔹 **Extend rules** for fraud detection.  
-🔹 **Add Swagger/OpenAPI** for API documentation.  
+**🎯 Perfect for:** E-commerce order pipelines, loan processing, dynamic pricing systems.  
 
----
-
-### **Conclusion**  
-This system efficiently processes orders using **Camel routing** and **Drools rules**, providing:  
-✔ **Flexibility** (rules can be modified without code changes)  
-✔ **Scalability** (Camel supports multiple input sources)  
-✔ **Maintainability** (clear separation of concerns)  
-
-🚀 **Happy Processing!** 🚀
+``` 
+Made with ❤️ using Camel + Drools + Spring Boot
+```
